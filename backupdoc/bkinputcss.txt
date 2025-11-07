@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+/* ===============================
+   🌐 GLOBAL BASE SETTING (STABLE)
+   Tailwind v4 — Chrome/Edge focus fix
+   =============================== */
+@layer base {
+  html, body, #root {
+    @apply m-0 p-0 bg-white;
+  }
+
+  /* 🧱 Universal Form Style */
+  input,
+  textarea,
+  select,
+  button {
+    @apply text-[#5E5E5E] border border-gray-300 rounded-[10px]
+           bg-white font-light transition-all duration-200
+           focus:outline-hidden focus:ring-2 focus:ring-[#EB5B00]
+           focus:border-transparent hover:border-[#EB5B00];
+  }
+
+  /* 🟧 Hover */
+  input:hover,
+  textarea:hover,
+  select:hover {
+    @apply border-[#EB5B00];
+  }
+
+  /* ===============================
+     🎯 Fokus Ring Fix — Chrome/Edge
+     =============================== */
+
+  /* 1️⃣ Normal reset outline bawaan */
+  input, textarea, select, button {
+    outline-style: none;
+  }
+
+  /* 2️⃣ Saat fokus (klik / tab) → aktifkan ring Tailwind, tapi matikan outline bawaan */
+  input:focus,
+  textarea:focus,
+  select:focus,
+  button:focus {
+    outline-style: none !important;
+    -webkit-focus-ring-color: transparent !important;
+  }
+
+  /* 3️⃣ Saat fokus keyboard (focus-visible) → tetap tampil ring */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  button:focus-visible {
+    outline-style: none !important;
+    -webkit-focus-ring-color: transparent !important;
+  }
+
+  /* 4️⃣ Saat fokus tapi bukan visible (klik mouse cepat) → matikan outline sisa Chrome */
+  input:focus:not(:focus-visible),
+  textarea:focus:not(:focus-visible),
+  select:focus:not(:focus-visible),
+  button:focus:not(:focus-visible) {
+    outline: none !important;
+    -webkit-focus-ring-color: transparent !important;
+  }
+
+  /* 5️⃣ Saat blur (tidak fokus lagi) → hapus outline sisa Chrome */
+  input:not(:focus),
+  textarea:not(:focus),
+  select:not(:focus),
+  button:not(:focus) {
+    outline: none !important;
+    -webkit-focus-ring-color: transparent !important;
+  }
+
+  /* ===============================
+     🧩 Autofill Chrome fix
+     =============================== */
+  input:-webkit-autofill,
+  input:-webkit-autofill:focus,
+  input:-internal-autofill-selected {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: #333 !important;
+    border: 1px solid #d1d5db !important;
+  }
+
+  /* ===============================
+   🗓️ Input Date — FIXED (No double icon, clean focus)
+   =============================== */
+input[type="date"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  outline: none !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 10px;
+  background-color: white !important;
+  transition: all 0.15s ease-in-out;
+  position: relative;
+}
+
+/* 🔸 Hapus icon kalender bawaan browser (agar tidak double) */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: none;
+}
+
+/* 🔸 Hapus tombol spin dan clear bawaan Chrome */
+input[type="date"]::-webkit-clear-button,
+input[type="date"]::-webkit-inner-spin-button {
+  display: none !important;
+}
+
+/* 🔸 Hover effect */
+input[type="date"]:hover {
+  border-color: #EB5B00 !important;
+}
+
+/* 🔸 Fokus — munculkan ring oranye lembut */
+input[type="date"]:focus {
+  @apply focus:outline-hidden focus:ring-2 focus:ring-[#EB5B00];
+  border-color: transparent !important;
+  outline: none !important;
+}
+
+
+
+  /* ===============================
+     ✅ Scrollbar minimalis
+     =============================== */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+  }
+}

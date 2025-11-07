@@ -1,0 +1,73 @@
+
+===============================================
+📦 Struktur Folder Project (Minimal Clean)
+🕒 Diperbarui: 5/11/2025, 15.12.04
+===============================================
+
+Final-Project-E-Meeting
+├── eslint.config.js
+├── generateTree.js
+├── index.html
+├── package.json
+├── public
+├── README.md
+└── src
+    ├── App.css
+    ├── App.jsx
+    ├── assets
+    │   ├── images
+    │   └── react.svg
+    ├── components
+    │   ├── DashboardFilterPanel.jsx
+    │   ├── DashboardFilterPanelCopy.jsx
+    │   ├── DashboardRoomCard.jsx
+    │   ├── DashboardRoomType.jsx
+    │   ├── DashboardStatisticCard.jsx
+    │   ├── DropdownSelect.jsx
+    │   ├── DropdownSelectSmall.jsx
+    │   ├── index.js
+    │   ├── LayoutFooter.jsx
+    │   ├── LayoutHeader.jsx
+    │   ├── LayoutSidebar.jsx
+    │   ├── LayoutTitleBar.jsx
+    │   ├── PickerDateRange.jsx
+    │   ├── PickerEndDate.jsx
+    │   ├── PickerStartDate.jsx
+    │   ├── ReportFilterPanel.jsx
+    │   ├── ReportPagination.jsx
+    │   ├── ReportStatusBadge.jsx
+    │   ├── ReportTable.jsx
+    │   ├── ReportTableBody.jsx
+    │   ├── ReportTableHeader.jsx
+    │   ├── ReservationDetailModal.jsx
+    │   ├── ReservationFormModal.jsx
+    │   ├── ReservationSuccessModal.jsx
+    │   ├── RoomsContainer.jsx
+    │   ├── RoomsSearchPanel.jsx
+    │   ├── ScheduleBody.jsx
+    │   ├── ScheduleColumn.jsx
+    │   ├── ScheduleContainer.jsx
+    │   ├── ScheduleHeaderRoom.jsx
+    │   ├── ScheduleSearchPanel.jsx
+    │   ├── ScheduleTimeSidebar.jsx
+    │   └── SettingsAccountSection.jsx
+    ├── data
+    │   ├── DashboardDataDummies.js
+    │   ├── GlobalDataDummies.js
+    │   ├── ReportDataDummies.js
+    │   ├── RoomsDataDummies.js
+    │   └── ScheduleDataDummies.js
+    ├── index.css
+    ├── main.jsx
+    ├── pages
+    │   ├── DashboardAdmin.jsx
+    │   ├── Login.jsx
+    │   ├── Register.jsx
+    │   ├── Report.jsx
+    │   ├── ReservationSchedule.jsx
+    │   ├── Rooms.jsx
+    │   └── Settings.jsx
+    └── styles
+        ├── datepicker.css
+        ├── input.css
+        └── tailwind.css

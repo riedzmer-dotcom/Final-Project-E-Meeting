@@ -1,0 +1,102 @@
+/* 🌿 Load Tailwind (v4 syntax) */
+@import "tailwindcss";
+
+/* 💅 Fonts & Icons — wajib di-load sebelum blok CSS lain */
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+@import url("https://unicons.iconscout.com/release/v4.0.8/css/line.css");
+@import url("https://unicons.iconscout.com/release/v4.0.8/css/solid.css");
+
+
+/* 🌐 Base Styling */
+body {
+  font-family: "Roboto", sans-serif;
+  @apply bg-gray-100 text-gray-900;
+}
+
+/* 🌿 Global Base Layer */
+@layer base {
+  html,
+  body,
+  #root {
+    @apply min-h-screen overflow-x-hidden;
+  }
+
+  /* ✅ Scrollbar minimalis (desktop) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+  }
+}
+
+/* 🎚️ Variabel umum (fix scrollbar Windows) */
+:root {
+  --scrollbar-width: 16px;
+}
+
+/* 🌗 Optional: Dark Mode Variant (auto detect .dark class) */
+@variant dark (&:where(.dark, .dark *)) {
+  body {
+    @apply bg-gray-900 text-gray-100;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-700;
+  }
+}
+
+/* Style dropdown options */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+}
+
+/* Custom arrow */
+select {
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%235E5E5E' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5.516 7.548l4.484 4.484 4.484-4.484-1.032-1.032-3.452 3.452-3.452-3.452z'/></svg>");
+}
+
+/* Dropdown popup list */
+select:focus {
+  border-color: #EB5B00 !important;
+  box-shadow: 0 0 0 1px #EB5B00 !important;
+  outline: none !important;
+}
+
+/* Option hover effect */
+option:hover {
+  background-color: #FFE6D6 !important;
+  color: #EB5B00 !important;
+}
+
+/* Option selected */
+option:checked {
+  background-color: #EB5B00 !important;
+  color: white !important;
+}
+
+.inputField {
+  @apply w-full h-[48px] rounded-[10px] border border-gray-300 px-[14px] 
+         text-[14px] text-[#5E5E5E]
+         focus:outline-none focus:ring-1 focus:ring-[#EB5B00] focus:border-[#EB5B00]
+         transition-all duration-200;
+}
+
+.inputArea {
+  @apply w-full min-h-[80px] rounded-[10px] border border-gray-300 px-[14px] py-[10px]
+         text-[14px] text-[#5E5E5E] resize-none
+         focus:outline-none focus:ring-1 focus:ring-[#EB5B00] focus:border-[#EB5B00]
+         transition-all duration-200;
+}
+

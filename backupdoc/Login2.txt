@@ -1,0 +1,25 @@
+import AuthLoginCard from "../components/AuthLoginCard";
+
+export default function Login() {
+  return (
+    <div
+      className="relative w-full max-w-[1920px] h-[1080px] bg-cover bg-center"
+      style={{ fontFamily: "'Roboto', sans-serif" }}
+    >
+      <main className="relative w-full h-full bg-white overflow-hidden">
+        {/* 🔸 Background */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/src/assets/images/image2.png')" }}
+        >
+          <div className="absolute inset-0 bg-black/10 pointer-events-none"></div>
+        </div>
+
+        {/* 🔸 Card agak ke kiri */}
+        <div className="relative z-10 flex items-center justify-start h-full ml-[120px]">
+          <AuthLoginCard />
+        </div>
+      </main>
+    </div>
+  );
+}

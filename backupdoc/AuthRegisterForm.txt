@@ -1,0 +1,118 @@
+import { useState } from "react";
+
+export default function AuthRegisterForm() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  return (
+    <form className="w-[380px] flex flex-col gap-[30px]">
+      {/* Username */}
+      <div className="flex flex-col gap-[2px]">
+        <label htmlFor="username" className="text-sm font-medium text-gray-700 px-[5px]">
+          Username
+        </label>
+        <input
+          id="username"
+          type="text"
+          placeholder="Username"
+          autoComplete="username"
+          className="w-full h-[48px] px-[14px] rounded-[10px] border border-gray-300 
+                     bg-white text-[14px] text-gray-900 placeholder:text-gray-500
+                     focus:outline-none focus:ring-2 focus:ring-[#EB5B00] focus:border-transparent
+                     hover:border-[#EB5B00] transition-colors
+                     focus-visible:outline-none"
+        />
+      </div>
+
+      {/* Email */}
+      <div className="flex flex-col gap-[2px]">
+        <label htmlFor="email" className="text-sm font-medium text-gray-700 px-[5px]">
+          Email
+        </label>
+        <input
+          id="email"
+          type="email"
+          placeholder="Email"
+          autoComplete="email"
+          className="w-full h-[48px] px-[14px] rounded-[10px] border border-gray-300 
+                     bg-white text-[14px] text-gray-900 placeholder:text-gray-500
+                     focus:outline-none focus:ring-2 focus:ring-[#EB5B00] focus:border-transparent
+                     hover:border-[#EB5B00] transition-colors
+                     focus-visible:outline-none"
+        />
+      </div>
+
+      {/* Password */}
+      <div className="flex flex-col gap-[2px] relative">
+        <label htmlFor="password" className="text-sm font-medium text-gray-700 px-[5px]">
+          Password
+        </label>
+        <input
+          id="password"
+          type={showPassword ? "text" : "password"}
+          placeholder="Password"
+          autoComplete="new-password"
+          className="w-full h-[48px] px-[14px] pr-[40px] rounded-[10px] border border-gray-300 
+                     bg-white text-[14px] text-gray-900 placeholder:text-gray-500
+                     focus:outline-none focus:ring-2 focus:ring-[#EB5B00] focus:border-transparent
+                     hover:border-[#EB5B00] transition-colors
+                     focus-visible:outline-none"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-[12px] top-[35px] text-gray-400 hover:text-gray-700 
+                     transition border-none focus:outline-none focus:ring-0 focus-visible:outline-none"
+        >
+          {showPassword ? (
+            <i className="uil uil-eye text-[18px]" />
+          ) : (
+            <i className="uil uil-eye-slash text-[18px]" />
+          )}
+        </button>
+      </div>
+
+      {/* Confirm Password */}
+      <div className="flex flex-col gap-[2px] relative">
+        <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 px-[5px]">
+          Confirm Password
+        </label>
+        <input
+          id="confirmPassword"
+          type={showConfirm ? "text" : "password"}
+          placeholder="Confirm Password"
+          autoComplete="new-password"
+          className="w-full h-[48px] px-[14px] pr-[40px] rounded-[10px] border border-gray-300 
+                     bg-white text-[14px] text-gray-900 placeholder:text-gray-500
+                     focus:outline-none focus:ring-2 focus:ring-[#EB5B00] focus:border-transparent
+                     hover:border-[#EB5B00] transition-colors
+                     focus-visible:outline-none"
+        />
+        <button
+          type="button"
+          onClick={() => setShowConfirm(!showConfirm)}
+          className="absolute right-[12px] top-[35px] text-gray-400 hover:text-gray-700 
+                     transition border-none focus:outline-none focus:ring-0 focus-visible:outline-none"
+        >
+          {showConfirm ? (
+            <i className="uil uil-eye text-[18px]" />
+          ) : (
+            <i className="uil uil-eye-slash text-[18px]" />
+          )}
+        </button>
+      </div>
+
+      {/* Button Create Account */}
+      <button
+        type="submit"
+        className="w-full h-[48px] bg-[#EB5B00] text-white text-[16px] 
+                  font-medium rounded-[10px]
+                   hover:bg-orange-600 hover:scale-[1.02] active:scale-[.98]
+                   focus:outline-none focus:ring-2 focus:ring-[#EB5B00] focus-visible:outline-none
+                   transition-all duration-200"
+      >
+        Create Account
+      </button>
+    </form>
+  );
+}

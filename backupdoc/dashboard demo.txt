@@ -1,0 +1,235 @@
+import iconOnly from "../assets/images/Icon-Only.png";
+import frameImage from "../assets/images/frame-image.png";
+
+export default function Dashboard() {
+  const rooms = [
+    "Aster Room", "Bluebell Room", "Camellia Room", "Daisy Room",
+    "Edelweiss Room", "Iris Room", "Lily Room", "Orchid Room",
+    "Peony Room", "Rose Room", "Sunflower Room", "Tulip Room"
+  ];
+
+  return (
+    <div
+      className="bg-gray-100 min-h-screen overflow-x-hidden"
+      style={{ fontFamily: "'Roboto', sans-serif" }}
+    >
+      {/* ================================
+          SIDEBAR
+      ================================= */}
+      <aside
+        className="fixed left-0 top-0 w-[80px] h-screen bg-white border-r border-gray-100 
+                   flex flex-col items-center py-6 z-20 transition-all duration-300 ease-in-out"
+      >
+        {/* 🔹 Logo utama */}
+        <div className="w-[50px] h-[50px] flex items-center justify-center mb-5">
+          <img
+            src={iconOnly}
+            alt="E-Meeting Icon"
+            className="w-[40px] h-[40px] object-contain"
+          />
+        </div>
+
+        {/* 🔹 Tombol collapse */}
+        <div className="flex items-center justify-center mb-5">
+          <button
+            className="w-[25px] h-[25px] flex items-center justify-center 
+                       rounded-full border border-[#EB5B00] 
+                       text-[#EB5B00] hover:bg-[#EB5B00]/10 
+                       transition duration-200 ease-out"
+          >
+            <i className="uil uil-angle-right text-[20px]" />
+          </button>
+        </div>
+
+        {/* 🔹 Tombol Apps */}
+        <div className="w-[40px] h-[40px] flex items-center justify-center mb-5">
+          <button
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-transparent 
+                       text-[#EB5B00] hover:text-[#FF7B1A] hover:scale-110 
+                       transition-all duration-200 ease-out"
+          >
+            <i className="uil uil-apps text-[20px]" />
+          </button>
+        </div>
+
+        {/* 🔹 Menu Vertikal */}
+        <div className="w-[40px] h-[220px] flex flex-col justify-between items-center">
+          {["uil-clipboard-notes", "uil-building", "uil-file-alt", "uil-setting"].map(
+            (ic, i) => (
+              <button
+                key={i}
+                className="w-10 h-10 flex items-center justify-center rounded-xl bg-transparent 
+                           text-[#C4C4C4] hover:text-[#EB5B00] hover:bg-[#EB5B00]/10 
+                           transition-all duration-200 ease-out"
+              >
+                <i className={`uil ${ic} text-[24px]`} />
+              </button>
+            )
+          )}
+        </div>
+      </aside>
+
+      {/* ================================
+          HEADER
+      ================================= */}
+      <header
+        className="fixed top-0 left-[80px] right-0 h-[80px] bg-white border-b border-gray-100 
+                   flex items-center justify-between px-[40px] z-20 transition-all duration-300 ease-in-out"
+      >
+        <h1 className="text-[28px] font-medium text-gray-800">Dashboard</h1>
+
+        <div className="flex items-center gap-3 w-[151px] h-[50px]">
+          <img
+            src={frameImage}
+            alt="User"
+            className="w-10 h-10 rounded-full object-cover"
+          />
+          <div className="flex flex-col leading-tight">
+            <span className="text-gray-800 font-medium text-sm">Angelina</span>
+            <span className="text-gray-500 text-xs">Admin</span>
+          </div>
+
+          <button
+            className="ml-auto w-8 h-8 grid place-items-center rounded-md hover:bg-gray-100 
+                       text-red-600 hover:text-red-800 transition"
+          >
+            <i className="uil uil-signout text-[20px]" />
+          </button>
+        </div>
+      </header>
+
+      {/* ================================
+          WRAPPER + MAIN CONTENT
+      ================================= */}
+      <div
+        className="absolute top-[80px] left-[80px] right-0 bottom-0 bg-transparent flex flex-col"
+      >
+        <main
+          className="flex-1 overflow-y-auto px-[20px] py-[20px] flex flex-col gap-[20px] pb-[40px]"
+        >
+          {/* 🔸 Panel Filter / Pencarian */}
+          <section
+            className="w-full bg-white shadow-sm px-[20px] py-[16px] 
+                       flex flex-wrap md:flex-nowrap items-end justify-between gap-[20px]"
+          >
+            <div className="flex flex-1 gap-[20px] min-w-0">
+              {/* Start Date */}
+              <div className="flex flex-col flex-1 min-w-0">
+                <label className="text-[#5E5E5E] text-[16px] font-normal px-[5px] mb-[2px]">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  placeholder="dd/mm/yyyy"
+                  className="h-[48px] rounded-[10px] border border-gray-300 px-[14px]
+                             text-[#5E5E5E] text-[14px] font-light focus:ring-2 
+                             focus:ring-orange-500 focus:outline-none w-full"
+                />
+              </div>
+
+              {/* End Date */}
+              <div className="flex flex-col flex-1 min-w-0">
+                <label className="text-[#5E5E5E] text-[16px] font-normal px-[5px] mb-[2px]">
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  placeholder="dd/mm/yyyy"
+                  className="h-[48px] rounded-[10px] border border-gray-300 px-[14px]
+                             text-[#5E5E5E] text-[14px] font-light focus:ring-2 
+                             focus:ring-orange-500 focus:outline-none w-full"
+                />
+              </div>
+            </div>
+
+            {/* Button Search */}
+            <button
+              className="min-w-[140px] md:w-[210px] h-[48px] rounded-[10px] 
+                         bg-orange-600 hover:bg-orange-700 text-white text-[16px] 
+                         font-normal flex items-center justify-center 
+                         transition-all duration-200"
+            >
+              Search
+            </button>
+          </section>
+
+          {/* 🔸 Statistik Utama */}
+          <section className="w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-[20px]">
+            {[
+              { title: "Total Omzet", value: "Rp. 8.000.000" },
+              { title: "Total Reservation", value: "100" },
+              { title: "Total Visitor", value: "500" },
+              { title: "Total Rooms", value: "12" },
+            ].map((it, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-[10px] shadow-sm flex flex-col justify-start 
+                           px-[20px] py-[16px] h-auto sm:h-[128px]"
+              >
+                <span className="text-[#5E5E5E] text-[18px] font-normal leading-[27px] mb-[8px]">
+                  {it.title}
+                </span>
+                <span className="text-black text-[36px] font-medium leading-[46px]">
+                  {it.value}
+                </span>
+              </div>
+            ))}
+          </section>
+
+          {/* 🔸 Grid 12 Room Cards */}
+          <section className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[20px]">
+            {rooms.map((name, i) => (
+              <div
+                key={i}
+                className="h-[227px] bg-white rounded-[10px] shadow-sm px-[20px] py-[20px] 
+                           flex flex-col justify-between"
+              >
+                <h3 className="text-[#5E5E5E] text-[28px] font-medium leading-[38px] mb-[8px]">
+                  {name}
+                </h3>
+                <div className="flex justify-between items-center w-full">
+                  <div className="flex flex-col gap-[12px]">
+                    <div className="flex flex-col gap-[5px]">
+                      <span className="text-[#787878] text-[14px] font-normal leading-[20px]">
+                        Percentage of Usage
+                      </span>
+                      <span className="text-black text-[24px] font-semibold leading-[32px]">
+                        80%
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-[5px]">
+                      <span className="text-[#787878] text-[14px] font-normal leading-[20px]">
+                        Omzet
+                      </span>
+                      <span className="text-black text-[24px] font-semibold leading-[32px]">
+                        Rp. 2.000.000
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Donut 80% */}
+                  <div className="relative w-[100px] h-[100px] flex items-center justify-center">
+                    <div className="absolute inset-0 rounded-full bg-[#F7F7F7]" />
+                    <div
+                      className="absolute inset-0 rounded-full z-0"
+                      style={{
+                        background:
+                          "conic-gradient(#EB5B00 0deg 288deg, #F7F7F7 288deg 360deg)",
+                      }}
+                    />
+                    <div className="w-[75px] h-[75px] rounded-full bg-white z-10" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </section>
+
+          {/* 🔸 Footer */}
+          <footer className="w-full text-center py-0.5 text-[14px] text-gray-400 border-t border-gray-100 mt-0.5 mb-0.5">
+            © Ridwan Nurhamsyah - Final Project Bootcamp FrontEnd - Sinau Coding
+          </footer>
+        </main>
+      </div>
+    </div>
+  );
+}

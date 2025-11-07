@@ -1,0 +1,89 @@
+/* ================================
+   📅 Datepicker Popup Styling
+   ================================ */
+
+/* Container popup */
+.react-datepicker {
+  background: #f2f1f1 !important;
+  border: 1px solid #e5e7eb !important; /* border-gray-300 */
+  border-radius: 10px !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06) !important; /* shadow lembut */
+  overflow: hidden !important; /* biar rounded header tidak bocor */
+  font-family: 'Roboto', sans-serif !important;
+}
+
+/* Header (bulan & tahun + background orange) */
+.react-datepicker__header {
+  background: #EB5B00 !important;
+  border-bottom: none !important;
+  border-radius: 10px 10px 0 0 !important;
+}
+
+/* Nama bulan & tahun */
+.react-datepicker__current-month {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+}
+
+/* ================================
+   🔘 Day styling
+   ================================ */
+
+/* Hari biasa */
+.react-datepicker__day {
+  border-radius: 6px !important;
+  color: #4b5563 !important; /* text-gray-600 */
+}
+
+/* Hover */
+.react-datepicker__day:hover {
+  background: #FFE6D6 !important; /* soft orange tint */
+  color: #EB5B00 !important;
+}
+
+/* Hari terpilih */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background: #EB5B00 !important;
+  color: #ffffff !important;
+}
+
+/* Hari 'today' diberi outline halus */
+.react-datepicker__day--today {
+  border: 1px solid #EB5B00 !important;
+  border-radius: 6px !important;
+}
+
+/* Jarak antara input dan popup datepicker */
+.react-datepicker-popper {
+  margin-top: -4px !important; /* bisa kamu ubah: 4px / 8px sesuai selera */
+}
+
+
+/* ================================
+   ⬅️ Panah Navigasi ➡️
+   ================================ */
+
+/* Posisikan lebih rapi */
+.react-datepicker__navigation--previous,
+.react-datepicker__navigation--next {
+  top: 4px !important;
+}
+
+/* Ubah warna panah jadi putih */
+.react-datepicker__navigation--previous::before,
+.react-datepicker__navigation--next::before {
+  border-color: #ffffff !important;
+  border-width: 2px !important;
+}
+
+/* Hover → sedikit lebih gelap */
+.react-datepicker__navigation--previous:hover::before,
+.react-datepicker__navigation--next:hover::before {
+  border-color: #ffe6d6 !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: #ffffff !important;
+}
