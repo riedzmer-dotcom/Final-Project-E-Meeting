@@ -1,4 +1,9 @@
 export default function ReportStatusBadge({ status }) {
+
+/* ======================================================
+       STATUS COLOR MAPPING
+       - Pick badge color based on status string
+     ====================================================== */
   const getStatusColor = (status) => {
     switch (status) {
       case "Paid":
@@ -12,12 +17,16 @@ export default function ReportStatusBadge({ status }) {
     }
   };
 
+
+/* ======================================================
+       UI
+     ====================================================== */
   return (
     <span
       className={`${getStatusColor(status)} text-white text-[14px] font-medium flex items-center justify-center rounded-full`}
       style={{
-        width: "60px",   // lebar tetap
-        height: "30px",  // tinggi tetap
+        width: "60px",   
+        height: "30px", 
          fontSize: "12px",
         lineHeight: "25px",
         fontFamily: "'Roboto', sans-serif",

@@ -1,13 +1,23 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
 export default function PrivateRoute({ children }) {
-  const token = localStorage.getItem("token");
 
-  // Kalau tidak ada token, arahkan ke halaman login
-  if (!token) {
-    return <Navigate to="/Login" replace />;
+  /* ======================================================
+       AUTH STATE
+       - Validate token stored in localStorage
+     ====================================================== */
+  const token = localStorage.getItem("token");
+  const location = useLocation();
+
+  /* ======================================================
+       REDIRECT IF NOT AUTHENTICATED
+     ====================================================== */
+  if (!token || token.trim() === "") {
+    return <Navigate to="/Login" replace state={{ from: location }} />;
   }
 
-  // Kalau ada token, tampilkan halaman aslinya
+  /* ======================================================
+       ALLOW ACCESS WHEN AUTHENTICATED
+     ====================================================== */
   return children;
 }

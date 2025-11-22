@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../services/api";
+import { loginUser } from "../services/api";
 import mainLogo from "/src/assets/images/main-logo.png";
 import bgImage from "/src/assets/images/BgeMeeting.webp";
 
@@ -11,37 +11,55 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // ======================================================
+  // HANDLE LOGIN
+  // ======================================================
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const res = await api.post("/auth/login", { username, password });
-      console.log("Response dari backend:", res.data);
+      const res = await loginUser({ username, password });
 
-      // Ambil token
-      const token = res.data?.data?.token;
-      if (!token) throw new Error("Token tidak ditemukan!");
+      // Backend response:
+      // { status: "success", token, role }
+      const token = res?.token;
+      const role = res?.role;
 
-      // Decode token untuk ambil user_id
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const userId = payload.user_id;
+      if (!token) {
+        throw new Error("Token tidak ditemukan di server.");
+      }
 
-      // Simpan data ke localStorage
+      // Simpan token tanpa "Bearer"
       localStorage.setItem("token", token);
-      localStorage.setItem("username", username);
-      localStorage.setItem("userId", userId);
 
-      alert("✅ Login berhasil!");
+      // Simpan username agar header bisa menampilkan nama
+      localStorage.setItem("username", username);
+
+      // Simpan role jika ada
+      if (role) {
+        localStorage.setItem("role", role);
+      }
+
+      alert("Login berhasil! ✔️");
       navigate("/Dashboard");
+
     } catch (err) {
-      console.error("Login error:", err);
-      alert("❌ Login gagal! Periksa username dan password kamu.");
+      console.error("❌ Login error:", err);
+
+      const message =
+        err?.response?.data?.message ||
+        "❌ Login gagal! Periksa username dan password.";
+
+      alert(message);
     } finally {
       setLoading(false);
     }
   };
 
+  // ======================================================
+  //  UI
+  // ======================================================
   return (
     <div
       className="flex items-center justify-start min-h-screen bg-cover bg-center bg-no-repeat"
@@ -52,17 +70,14 @@ export default function Login() {
     >
       {/* CARD */}
       <div
-        className="bg-white w-[90%] sm:w-[420px] md:w-[500px] lg:w-[560px] ml-[60px] px-[110px] pt-[50px] pb-[20px]
+        className="bg-white w-[90%] sm:w-[420px] md:w-[500px] lg:w-[560px] ml-[60px] 
+                   px-[110px] pt-[50px] pb-[20px]
                    rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.2)]
                    flex flex-col items-center"
       >
         {/* LOGO */}
         <div className="flex items-center justify-center mb-[15px]">
-          <img
-            src={mainLogo}
-            alt="Logo"
-            className="w-[147px] h-[50px] object-contain"
-          />
+          <img src={mainLogo} alt="Logo" className="w-[147px] h-[50px] object-contain" />
         </div>
 
         {/* TITLE */}
@@ -85,11 +100,11 @@ export default function Login() {
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
               className="w-full h-[48px] rounded-[10px] border border-gray-300 px-[14px]
-                         text-[14px] text-[#5E5E5E]
-                         focus:outline-none focus:ring-1 focus:ring-[#EB5B00]
-                         transition-all duration-200"
-              required
+                         text-[14px] text-[#5E5E5E] bg-white
+                         focus:ring-1 focus:ring-[#EB5B00] focus:border-[#EB5B00]
+                         focus:outline-none transition-all duration-200"
             />
           </div>
 
@@ -101,30 +116,30 @@ export default function Login() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full h-[48px] rounded-[10px] border border-gray-300 px-[14px]
-                         text-[14px] text-[#5E5E5E]
-                         focus:outline-none focus:ring-1 focus:ring-[#EB5B00]
-                         transition-all duration-200"
               autoComplete="current-password"
-              required
+              className="w-full h-[48px] rounded-[10px] border border-gray-300 px-[14px]
+                         text-[14px] text-[#5E5E5E] bg-white
+                         focus:ring-1 focus:ring-[#EB5B00] focus:border-[#EB5B00]
+                         focus:outline-none transition-all duration-200"
             />
+
+            {/* Toggle Password */}
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-[12px] top-[36px] text-gray-400 hover:text-[#EB5B00] transition-colors duration-200"
+              className="absolute right-[12px] top-[36px] text-gray-400 hover:text-[#EB5B00]
+                         transition-colors duration-150 focus:outline-none"
             >
-              <i
-                className={`uil ${
-                  showPassword ? "uil-eye-slash" : "uil-eye"
-                } text-[20px]`}
-              ></i>
+              <i className={`uil ${showPassword ? "uil-eye-slash" : "uil-eye"} text-[20px]`} />
             </button>
 
+            {/* Forgot Password */}
             <a
               href="/ResetPassword"
               className="absolute right-[4px] -bottom-[18px] text-[12px] text-[#919191]
-                         hover:text-[#EB5B00] focus:text-[#EB5B00]
-                         transition-all duration-150"
+                         hover:text-[#EB5B00] transition-all duration-150
+                         focus:outline-none focus-visible:outline-none
+                       focus:text-[#EB5B00]"
             >
               Forgot Password?
             </a>
@@ -133,31 +148,32 @@ export default function Login() {
           {/* LOGIN BUTTON */}
           <button
             type="submit"
+            disabled={loading}
             className="mt-[25px] w-full h-[48px] rounded-[10px]
                        bg-[#EB5B00] hover:bg-[#d84f00] text-white font-medium
                        active:scale-95 transition-all duration-200
-                       focus:ring-1 focus:ring-[#EB5B00]"
-            disabled={loading}
+                       focus:outline-none focus:ring-1 focus:ring-[#EB5B00]
+                       disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? "Loading..." : "Login"}
           </button>
         </form>
 
-        {/* Register */}
+        {/* REGISTER LINK */}
         <p className="text-gray-500 text-sm mt-[22px]">
           Don't have an account?{" "}
-          <a
-            href="/Register"
-            className="text-[#EB5B00] font-medium hover:underline
-                       transition-all duration-150"
+          <a href="/Register" 
+          className="text-[#EB5B00] font-medium hover:underline focus:underline
+                       focus:outline-none focus-visible:outline-none
+                       focus:text-[#EB5B00] transition-all duration-150"
           >
             Register
           </a>
         </p>
 
-        {/* Footer */}
-        <div className="text-center text-[12px] text-gray-400 mt-[25px]">
-          © Ridwan Nurhamsyah — Final Project E-Meeting
+        {/* FOOTER */}
+        <div className="text-center text-[10px] text-gray-400 mt-[25px]">
+          © Kelompok 2 Ridwan Nurhamsyah & Kamaludin — Final Project E-Meeting
         </div>
       </div>
     </div>

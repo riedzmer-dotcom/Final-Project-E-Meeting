@@ -1,3 +1,4 @@
+// ReservationSchedule.jsx
 import { useState } from "react";
 import LayoutSidebar from "../components/LayoutSidebar";
 import LayoutHeader from "../components/LayoutHeader";
@@ -5,12 +6,77 @@ import ScheduleSearchPanel from "../components/ScheduleSearchPanel";
 import ScheduleContainer from "../components/ScheduleContainer";
 import LayoutFooter from "../components/LayoutFooter";
 import ReservationFormDrawer from "../components/ReservationFormDrawer";
-import ReservationDetailModal from "../components/ReservationDetailModal"; // ✅ Tambahkan ini
+import ReservationDetailModal from "../components/ReservationDetailModal";
+import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
+import CustomToast from "../components/CustomToast";
+
+import ReservationPagination from "../components/ReservationPagination";
+import { deleteReservation } from "../services/api";
 
 export default function ReservationSchedule() {
+
+/* ======================================================
+       STATES
+     ====================================================== */
+
   const [isDrawerOpen, setDrawerOpen] = useState(false);
-  const [isDetailOpen, setDetailOpen] = useState(false); // ✅ Tambahkan ini
+  const [isDetailOpen, setDetailOpen] = useState(false);
+
   const [reservationData, setReservationData] = useState(null);
+  const [editingReservation, setEditingReservation] = useState(null);
+
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleteOpen, setDeleteOpen] = useState(false);
+
+  const [toast, setToast] = useState(null);
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 2000);
+  };
+
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  const [reloadReservationsFn, setReloadReservationsFn] = useState(null);
+
+  // Pagination state provided by ScheduleContainer
+  const [paginationState, setPaginationState] = useState({
+    page: 0,
+    totalPages: 0,
+    setPage: () => {},
+  });
+
+
+/* ======================================================
+       HANDLERS
+     ====================================================== */
+
+  const handleEdit = (event) => {
+    setEditingReservation(event);
+    setDrawerOpen(true);
+  };
+
+  const handleDelete = (event) => {
+    setDeleteTarget(event);
+    setDeleteOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await deleteReservation(deleteTarget.id);
+      showToast("Reservation deleted.", "success");
+      setDeleteTarget(null);
+      if (reloadReservationsFn) reloadReservationsFn();
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to delete reservation.", "error");
+    }
+  };
+
+
+  /* ======================================================
+       UI
+     ====================================================== */
 
   return (
     <div
@@ -20,30 +86,92 @@ export default function ReservationSchedule() {
       <LayoutSidebar />
       <LayoutHeader pageTitle="Reservation Schedule" />
 
-      <div className="absolute top-[80px] left-[80px] right-0 bottom-0 flex flex-col pt-[20px] px-[20px] bg-gray-100 shadow-sm">
-        <div className="w-full bg-white z-20 px-0 pt-0 pb-0">
-          <ScheduleSearchPanel onAddReservation={() => setDrawerOpen(true)} />
+      <div
+        className="
+          absolute top-[80px] left-[80px] right-0 bottom-0
+          flex flex-col
+          pt-[20px] px-[20px]
+        "
+      >
+        {/* SEARCH PANEL */}
+        <div className="w-full bg-white z-30">
+          <ScheduleSearchPanel
+            onAddReservation={() => {
+              setEditingReservation(null);
+              setDrawerOpen(true);
+            }}
+            onSearch={(s, e) => {
+              setStartDate(s);
+              setEndDate(e);
+            }}
+            startDate={startDate}
+            endDate={endDate}
+          />
         </div>
 
-        <div className="flex-1 bg-white z-10 overflow-hidden mt-0 px-[5px]">
-          <ScheduleContainer />
+        {/* CONTENT */}
+        <div
+          className="
+            flex-1 bg-white
+            overflow-auto
+            px-[5px]
+          "
+          style={{ scrollbarGutter: "stable both-edges" }}
+        >
+          <ScheduleContainer
+            startDate={startDate}
+            endDate={endDate}
+            onReadyReload={(fn) => setReloadReservationsFn(() => fn)}
+            onEditEvent={handleEdit}
+            onDeleteEvent={handleDelete}
+            onPaginationChange={(pg) => setPaginationState(pg)}
+          />
+        </div>
+
+        {/* PAGINATION (STATIC BELOW CONTENT) */}
+        <div className="mt-0 flex justify-center">
+          <ReservationPagination
+            page={paginationState.page}
+            totalPages={paginationState.totalPages}
+            onPrev={() =>
+              paginationState.page > 0 &&
+              paginationState.setPage(paginationState.page - 1)
+            }
+            onNext={() =>
+              paginationState.page < paginationState.totalPages - 1 &&
+              paginationState.setPage(paginationState.page + 1)
+            }
+
+            onGoto={(p) => paginationState.setPage(p)} 
+          />
         </div>
 
         <LayoutFooter />
       </div>
 
-      {/* Drawer Form */}
+      {/* DRAWER (ADD/EDIT) */}
       <ReservationFormDrawer
         isOpen={isDrawerOpen}
-        onClose={() => setDrawerOpen(false)}
+        editingData={editingReservation}
+        onClose={() => {
+          setDrawerOpen(false);
+          setEditingReservation(null);
+        }}
         onNext={(data) => {
           setReservationData(data);
           setDrawerOpen(false);
           setDetailOpen(true);
         }}
+        onSaved={() => {
+          showToast("Reservation updated successfully!", "success");
+          setDrawerOpen(false);
+          setEditingReservation(null);
+          if (reloadReservationsFn) reloadReservationsFn();
+        }}
+        showToast={showToast}
       />
 
-      {/* Modal Detail */}
+      {/* DETAIL MODAL */}
       <ReservationDetailModal
         isOpen={isDetailOpen}
         onClose={() => setDetailOpen(false)}
@@ -52,7 +180,29 @@ export default function ReservationSchedule() {
           setDrawerOpen(true);
         }}
         formData={reservationData}
+        showToast={showToast}
+        onSubmitted={() => {
+          showToast("Reservation berhasil disimpan!", "success");
+          if (reloadReservationsFn) reloadReservationsFn();
+          setDetailOpen(false);
+        }}
       />
+
+      {/* DELETE CONFIRM MODAL */}
+      <ConfirmDeleteModal
+        isOpen={isDeleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onConfirm={confirmDelete}
+      />
+
+      {/* TOAST */}
+      {toast && (
+        <CustomToast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

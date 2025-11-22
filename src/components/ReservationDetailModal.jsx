@@ -1,236 +1,357 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import {
+  createReservation,
+  updateReservation,
+  getReservations,
+} from "../services/api";
+import { SnackPriceMap } from "../data/SnackPriceMap";
 
-export default function ReservationDetailModal({ isOpen, onClose, onBack, formData }) {
+export default function ReservationDetailModal({
+  isOpen,
+  onClose,
+  onBack,
+  formData,
+  showToast,
+  onSubmitted,
+}) {
+
+/* ======================================================
+   STATE
+   ====================================================== */
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+/* ======================================================
+     ESC KEY → CLOSE MODAL
+     ====================================================== */
   useEffect(() => {
-    const escHandler = (e) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", escHandler);
-    return () => window.removeEventListener("keydown", escHandler);
+    const handler = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
   if (!isOpen || !formData) return null;
 
-  // 🔹 Format tanggal
-  const formatDate = (date) => {
-    if (!date) return "-";
+
+/* ======================================================
+     FORMAT DATE: DD/MM/YYYY → YYYY-MM-DD (ISO)
+     ====================================================== */
+  const toISODate = (dateStr) => {
+    if (!dateStr) return "";
+
+    // Jika sudah ISO langsung return
+    if (dateStr.includes("-")) return dateStr;
+
+    const [d, m, y] = dateStr.split("/");
+    return `${y}-${m}-${d}`;
+  };
+
+  /* ======================================================
+     FORMAT DATE FOR DISPLAY (fallback safe)
+     ====================================================== */
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "-";
+
     try {
-      return new Date(date).toLocaleDateString("id-ID", {
+      let iso = dateStr;
+
+      // convert jika bukan ISO
+      if (!dateStr.includes("-")) {
+        const [d, m, y] = dateStr.split("/");
+        iso = `${y}-${m}-${d}`;
+      }
+
+      return new Date(iso).toLocaleDateString("id-ID", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
       });
     } catch {
-      return "-";
+      return dateStr;
     }
   };
 
-  // 🔹 Hitung durasi otomatis
+
+/* ======================================================
+     CHECK TIME OVERLAPPING FOR SAME ROOM & DATE
+     ====================================================== */
+  const checkOverlapping = async () => {
+    try {
+      const res = await getReservations();
+      const all = res.data || [];
+
+      const selectedDate = toISODate(formData.date);
+
+      const filtered = all.filter(
+        (r) =>
+          r.room_id === formData.roomId &&
+          r.date_reservation === selectedDate
+      );
+
+      const toMinutes = (t) => {
+        const [h, m] = t.split(":").map(Number);
+        return h * 60 + m;
+      };
+
+      const newStart = toMinutes(formData.startTime);
+      const newEnd = toMinutes(formData.endTime);
+
+      for (let r of filtered) {
+        if (formData.isEdit && r.id === formData.editId) continue;
+
+        const s = toMinutes(r.start_time);
+        const e = toMinutes(r.end_time);
+
+        if (newStart < e && newEnd > s) return r;
+      }
+
+      return null;
+    } catch (err) {
+      console.error("Overlap error:", err);
+      return null;
+    }
+  };
+
+
+/* ======================================================
+     CALCULATE DURATION (HH:MM RANGE)
+     ====================================================== */
   const getDuration = (start, end) => {
     if (!start || !end) return "-";
+    const [sh, sm] = start.split(":").map(Number);
+    const [eh, em] = end.split(":").map(Number);
+
+    const diff = eh * 60 + em - (sh * 60 + sm);
+    if (diff <= 0) return "-";
+
+    const h = Math.floor(diff / 60);
+    const m = diff % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  };
+
+
+/* ======================================================
+     TOTALS (ROOM + SNACK)
+     ====================================================== */
+  const roomTotal = Number(formData.roomTotal || 0);
+  const snackTotal = Number(formData.snackTotal || 0);
+  const totalAmount = roomTotal + snackTotal;
+
+
+/* ======================================================
+     SUBMIT HANDLER (ADD / EDIT)
+     ====================================================== */
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+
+    const payload = {
+      room_id: formData.roomId,
+      pemesan: formData.name,
+      no_hp: formData.phone,
+      company_name: formData.company,
+      date_reservation: toISODate(formData.date),
+      start_time: formData.startTime,
+      end_time: formData.endTime,
+      total_participant: Number(formData.participants),
+      snack: formData.snackEnabled ? formData.snackCategory : "",
+      note: formData.note,
+      status: "pending",
+    };
+
+    // Overlap validation
+    const conflict = await checkOverlapping();
+    if (conflict) {
+      return showToast(
+        `⛔ Bentrok: ${conflict.start_time.slice(0, 5)} - ${conflict.end_time.slice(0, 5)}`,
+        "warning"
+      );
+    }
+
     try {
-      const [sh, sm] = start.split(":").map(Number);
-      const [eh, em] = end.split(":").map(Number);
-      const diff = eh * 60 + em - (sh * 60 + sm);
-      const hours = Math.floor(diff / 60);
-      const minutes = diff % 60;
-      if (diff <= 0) return "-";
-      return minutes > 0 ? `${hours}h ${minutes}m` : `${hours} hours`;
-    } catch {
-      return "-";
+      setIsSubmitting(true);
+
+      if (formData.isEdit) {
+        await updateReservation(formData.editId, payload);
+        showToast("Reservation updated!", "success");
+      } else {
+        await createReservation(payload);
+        showToast("Reservation created!", "success");
+      }
+
+      onSubmitted?.();
+      onClose?.();
+    } catch (err) {
+      console.error("Submit ERR:", err);
+      showToast("Gagal menyimpan data", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // 🔹 Hitung total keseluruhan
-  const totalAmount =
-    Number(formData.roomTotal || 0) + Number(formData.snackTotal || 0);
 
+/* ======================================================
+     UI
+     ====================================================== */
   return (
     <>
-      {/* Backdrop */}
+    {/* SUBSECTION — OVERLAY */}
       <div
         onClick={onClose}
         className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
       />
 
-      {/* Drawer / Modal */}
+      {/* SUBSECTION — RIGHT DRAWER */}
       <div className="fixed top-0 right-0 w-[456px] h-full bg-white shadow-xl z-50 flex flex-col">
 
-        {/* HEADER */}
-        <div className="flex justify-between items-center px-[16px] py-[16px] gap-0
-                        shadow-[0_2px_4px_-2px_rgba(0,0,0,0.1)] bg-white">
-          
-          {/* Kiri: Back + Title */}
+
+        {/* ======================================================
+            HEADER
+           ====================================================== */}
+        <div className="flex justify-between items-center px-4 py-4 shadow bg-white">
           <div className="flex items-center gap-2">
             <button
-              onClick={onBack} // 🔙 Kembali ke Reservation Form
-              className="flex items-center justify-center w-[24px] h-[24px] rounded-full
-                         hover:bg-[#FFF3E9] text-[#EB5B00] transition-all duration-200"
+              onClick={onBack}
+              className="flex items-center justify-center w-[28px] h-[28px] rounded-full hover:bg-[#FFF3E9] text-[#EB5B00]"
             >
-              <i className="uis uis-angle-left text-[24px]" />
+              <i className="uis uis-angle-left text-[20px]" />
             </button>
-            <h2 className="text-[24px] font-medium text-[#2B2B2B]">
-              Detail Reservation
+
+            <h2 className="text-[22px] font-medium">
+              {formData.isEdit ? "Review Changes" : "Detail Reservation"}
             </h2>
           </div>
 
-          {/* Kanan: Tombol Tutup */}
+          {/* Close Button */}
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-700 text-[26px] font-light leading-none"
+            className="text-gray-400 hover:text-[#EB5B00] text-[24px]"
           >
-            ×
+            x
           </button>
         </div>
 
-        {/* BODY */}
-        <div className="flex-1 overflow-y-auto bg-white text-[#2B2B2B] divide-y divide-gray-200">
-          
-          {/* ROOM DETAIL */}
+
+        {/* ======================================================
+            BODY
+           ====================================================== */}
+        <div className="flex-1 overflow-y-auto divide-y divide-gray-200">
+
+          {/* ROOM */}
           <section className="px-6 py-4">
-            <h3 className="font-medium text-[15px] mb-3">Room Detail</h3>
+            <h3 className="font-medium mb-3">Room Detail</h3>
+
             <div className="grid grid-cols-2 text-[14px] gap-y-1.5">
-              <div className="text-[#7A7A7A]">Room Name</div>
-              <div className="text-right">{formData.roomName || "-"}</div>
+              <div className="text-gray-500">Room Name</div>
+              <div className="text-right">{formData.roomName}</div>
 
-              <div className="text-[#7A7A7A]">Room Type</div>
-              <div className="text-right">{formData.roomType || "-"}</div>
+              <div className="text-gray-500">Room Type</div>
+              <div className="text-right">{formData.roomType}</div>
 
-              <div className="text-[#7A7A7A]">Capacity</div>
-              <div className="text-right">
-                {formData.capacity ? `${formData.capacity} people` : "-"}
-              </div>
+              <div className="text-gray-500">Capacity</div>
+              <div className="text-right">{formData.capacity} people</div>
 
-              <div className="text-[#7A7A7A]">Price/hour</div>
-              <div className="text-right">
-                Rp {formData.pricePerHour ? formData.pricePerHour.toLocaleString("id-ID") : "0"}
-              </div>
+              <div className="text-gray-500">Price / hour</div>
+              <div className="text-right">Rp {formData.pricePerHour.toLocaleString("id-ID")}</div>
             </div>
           </section>
 
-          {/* BOOK DETAIL */}
+
+          {/* SUBSECTION — BOOK DETAIL */}
           <section className="px-6 py-4">
-            <h3 className="font-medium text-[15px] mb-3">Book Detail</h3>
+            <h3 className="font-medium mb-3">Book Detail</h3>
+
             <div className="grid grid-cols-2 text-[14px] gap-y-1.5">
-              <div className="text-[#7A7A7A]">Name</div>
-              <div className="text-right">{formData.name || "-"}</div>
+              <div className="text-gray-500">Name</div>
+              <div className="text-right">{formData.name}</div>
 
-              <div className="text-[#7A7A7A]">No.Hp</div>
-              <div className="text-right">{formData.phone || "-"}</div>
+              <div className="text-gray-500">Phone</div>
+              <div className="text-right">{formData.phone}</div>
 
-              <div className="text-[#7A7A7A]">Company/Organization</div>
-              <div className="text-right">{formData.company || "-"}</div>
+              <div className="text-gray-500">Company</div>
+              <div className="text-right">{formData.company}</div>
 
-              <div className="text-[#7A7A7A]">Date Reservation</div>
+              <div className="text-gray-500">Date</div>
               <div className="text-right">{formatDate(formData.date)}</div>
 
-              <div className="text-[#7A7A7A]">Duration</div>
+              <div className="text-gray-500">Duration</div>
               <div className="text-right">
                 {getDuration(formData.startTime, formData.endTime)}
               </div>
 
-              <div className="text-[#7A7A7A]">Total Participants</div>
-              <div className="text-right">
-                {formData.participants
-                  ? `${formData.participants} participants`
-                  : "-"}
-              </div>
+              <div className="text-gray-500">Participants</div>
+              <div className="text-right">{formData.participants} people</div>
             </div>
           </section>
 
-          {/* KONSUMSI DETAIL */}
+
+          {/* SUBSECTION — SNACK DETAIL */}
           {formData.snackEnabled && (
             <section className="px-6 py-4">
-              <h3 className="font-medium text-[15px] mb-3">Konsumsi Detail</h3>
+              <h3 className="font-medium mb-3">Snack Detail</h3>
+
               <div className="grid grid-cols-2 text-[14px] gap-y-1.5">
-                <div className="text-[#7A7A7A]">Snack</div>
+                <div className="text-gray-500">Snack</div>
+                <div className="text-right">{formData.snackCategory}</div>
+
+                <div className="text-gray-500">Total Pack</div>
+                <div className="text-right">{formData.totalSnackPack} pack</div>
+
+                <div className="text-gray-500">Price / pack</div>
                 <div className="text-right">
-                  {formData.snackType ||
-                    (formData.snackCategory?.includes("Lunch")
-                      ? "Lunch"
-                      : "Coffee Break")}
+                  Rp {SnackPriceMap[formData.snackCategory].toLocaleString("id-ID")}
                 </div>
 
-                <div className="text-[#7A7A7A]">Packages</div>
-                <div className="text-right">{formData.snackCategory || "-"}</div>
+                <div className="text-gray-500">Subtotal</div>
+                <div className="text-right">
+                  Rp {formData.snackTotal.toLocaleString("id-ID")}
+                </div>
               </div>
             </section>
           )}
 
-          {/* TOTAL SECTION */}
-          <section className="px-6 py-4">
-            <h3 className="font-medium text-[15px] mb-3">Total</h3>
 
-            {/* Room */}
-            <div className="flex justify-between mb-[10px]">
-              <div>
-                <p className="text-[14px]">{formData.roomName || "-"}</p>
-                <p className="text-[13px] text-[#7A7A7A]">
-                  {getDuration(formData.startTime, formData.endTime)} × Rp{" "}
-                  {formData.pricePerHour
-                    ? formData.pricePerHour.toLocaleString("id-ID")
-                    : "0"}
-                </p>
-              </div>
-              <p className="text-[14px] font-medium">
-                {formData.roomTotal
-                  ? formData.roomTotal.toLocaleString("id-ID")
-                  : "0"}
-              </p>
+          {/* SUBSECTION — TOTAL */}
+          <section className="px-6 py-4">
+            <h3 className="font-medium mb-3">Total</h3>
+
+            <div className="flex justify-between mb-2">
+              <span>{formData.roomName}</span>
+              <span>Rp {roomTotal.toLocaleString("id-ID")}</span>
             </div>
 
-            {/* Snack */}
             {formData.snackEnabled && (
-              <div className="flex justify-between mb-[10px]">
-                <div>
-                  <p className="text-[14px]">{formData.snackCategory || "-"}</p>
-                  <p className="text-[13px] text-[#7A7A7A]">
-                    {formData.participants
-                      ? `${formData.participants} × ${
-                          formData.snackCategory?.includes("50.000")
-                            ? "50.000"
-                            : "20.000"
-                        }`
-                      : "-"}
-                  </p>
-                </div>
-                <p className="text-[14px] font-medium">
-                  {formData.snackTotal
-                    ? formData.snackTotal.toLocaleString("id-ID")
-                    : "0"}
-                </p>
+              <div className="flex justify-between mb-2">
+                <span>{formData.snackCategory}</span>
+                <span>Rp {snackTotal.toLocaleString("id-ID")}</span>
               </div>
             )}
 
-            {/* Divider & Total */}
-            <div className="border-t border-gray-200 my-3"></div>
-            <div className="flex justify-between items-center">
-              <span className="font-medium text-[15px]">Total</span>
-              <span className="font-semibold text-[18px]">
-                Rp {totalAmount.toLocaleString("id-ID")}
-              </span>
+            <div className="border-t mt-2 pt-2 flex justify-between text-[17px] font-semibold">
+              <span>Total</span>
+              <span>Rp {totalAmount.toLocaleString("id-ID")}</span>
             </div>
           </section>
 
-          {/* NOTE */}
+
+          {/* SUBSECTION — NOTE */}
           {formData.note && (
             <section className="px-6 py-4">
-              <h3 className="font-medium text-[15px] mb-2">Note</h3>
-              <p className="text-[14px] text-gray-700 leading-relaxed">
-                {formData.note}
-              </p>
+              <h3 className="font-medium mb-2">Note</h3>
+              <p className="text-gray-700 text-[14px]">{formData.note}</p>
             </section>
           )}
         </div>
 
-        {/* FOOTER */}
-        <div className="p-5 bg-white shadow-[0_-2px_6px_-2px_rgba(0,0,0,0.08)]">
+        {/* ======================================================
+            FOOTER
+           ====================================================== */}
+        <div className="p-5">
           <button
-            onClick={() => {
-              console.log("Submit reservation:", formData);
-              onClose();
-            }}
-            className="w-full bg-[#EB5B00] hover:bg-[#d84f00] text-white font-medium rounded-[10px] h-[48px] transition-all duration-200"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="w-full bg-[#EB5B00] hover:bg-[#d84f00] text-white h-[48px] rounded-[10px]"
           >
-            Submit
+            {isSubmitting ? "Submitting..." : formData.isEdit ? "Save Changes" : "Submit"}
           </button>
         </div>
       </div>

@@ -1,5 +1,5 @@
 // ============================================
-// 🧱 GLOBAL COMPONENTS (Layout & Structure)
+// GLOBAL COMPONENTS (Layout & Structure)
 // ============================================
 export { default as Sidebar } from "./Sidebar";
 export { default as Header } from "./Header";
@@ -7,7 +7,7 @@ export { default as Footer } from "./Footer";
 export { default as TitleBar } from "./TitleBar";
 
 // ============================================
-// 🗂️ AUTH COMPONENTS (Login & Register)
+// AUTH COMPONENTS (Login & Register)
 // ============================================
 export { default as LoginCard } from "./LoginCard";
 export { default as LoginForm } from "./LoginForm";
@@ -15,7 +15,7 @@ export { default as RegisterCard } from "./RegisterCard";
 export { default as RegisterForm } from "./RegisterForm";
 
 // ============================================
-// 📊 DASHBOARD COMPONENTS
+// DASHBOARD COMPONENTS
 // ============================================
 export { default as FilterPanel } from "./FilterPanel";
 export { default as RoomCard } from "./RoomCard";
@@ -23,7 +23,7 @@ export { default as StatisticCard } from "./StatisticCard";
 export { default as RoomType } from "./RoomType";
 
 // ============================================
-// 🕒 RESERVATION SCHEDULE COMPONENTS
+// RESERVATION SCHEDULE COMPONENTS
 // ============================================
 export { default as RoomHeaderSchedule } from "./RoomHeaderSchedule";
 export { default as ScheduleContainer } from "./ScheduleContainer";

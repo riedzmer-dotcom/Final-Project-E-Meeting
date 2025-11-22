@@ -1,25 +1,51 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast"; 
 import PrivateRoute from "./components/PrivateRoute";
 
-// 🔹 Pages — urut dari login → fitur utama
+// Pages (ordered from auth → main features)
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ResetPassword from "./pages/ResetPassword";
-
+import VerifyOTP from "./pages/VerifyOTP";
+import ResetPasswordConfirm from "./pages/ResetPasswordConfirm";
 import Dashboard from "./pages/Dashboard";
 import Rooms from "./pages/Rooms";
 import ReservationSchedule from "./pages/ReservationSchedule";
 import Report from "./pages/Report";
 import Settings from "./pages/Settings";
+import MasterDataTest from "./pages/MasterDataTest";
 
 export default function App() {
   return (
     <Router>
+
+      {/* ======================================================
+           GLOBAL TOAST NOTIFICATION
+           Active on every page in the app
+      ====================================================== */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            fontFamily: "'Roboto', sans-serif",
+            fontSize: "14px",
+          },
+        }}
+      />
+
+      {/* ======================================================
+           ROUTING 
+      ====================================================== */}
       <Routes>
         {/* 🏁 Default route: arahkan otomatis ke halaman Login */}
         <Route path="/" element={<Navigate to="/Login" replace />} />
 
-        {/* Halaman yang dilindungi (hanya bisa diakses jika sudah login) */}
+
+        {/* ====================================================
+             PROTECTED ROUTES (Require login)
+             Wrapped with <PrivateRoute>
+        ==================================================== */}
         <Route
           path="/Dashboard"
           element={
@@ -61,12 +87,23 @@ export default function App() {
           }
         />
 
-        {/* Halaman Auth (bebas diakses) */}
+        {/* ====================================================
+             PUBLIC ROUTES (Auth pages)
+        ==================================================== */}
         <Route path="/Login" element={<Login />} />
         <Route path="/Register" element={<Register />} />
         <Route path="/ResetPassword" element={<ResetPassword />} />
+        <Route path="/VerifyOTP" element={<VerifyOTP />} />
+        <Route path="/ResetPasswordConfirm" element={<ResetPasswordConfirm />} />
 
-        {/* 🚫 404 Fallback */}
+        {/* ====================================================
+             DEVELOPMENT / TESTING PAGE
+        ==================================================== */}
+        <Route path="/MasterDataTest" element={<MasterDataTest />} />
+
+        {/* ====================================================
+             404 FALLBACK
+        ==================================================== */}
         <Route
           path="*"
           element={

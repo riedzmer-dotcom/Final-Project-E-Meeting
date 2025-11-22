@@ -1,19 +1,44 @@
+import { useLocation, useNavigate } from "react-router-dom";
 import iconOnly from "../assets/images/Icon-Only.png";
 
 export default function LayoutSidebar() {
-  const menuIcons = [
-    "uil-clipboard-notes",
-    "uil-building",
-    "uil-file-alt",
-    "uil-setting",
+
+/* ======================================================
+       ROUTER
+     ====================================================== */
+  const location = useLocation();
+  const navigate = useNavigate();
+
+
+  /* ======================================================
+       MENU ITEMS
+     ====================================================== */
+  const menuItems = [
+    { icon: "uil-apps", path: "/Dashboard", label: "Dashboard" },
+    { icon: "uil-clipboard-notes", path: "/ReservationSchedule", label: "Reservation Schedule" },
+    { icon: "uil-building", path: "/Rooms", label: "Rooms" },
+    { icon: "uil-file-alt", path: "/Report", label: "Report" },
+    { icon: "uil-setting", path: "/Settings", label: "Settings" },
   ];
 
+
+  /* ======================================================
+       ACTIVE STATE CHECKER
+     ====================================================== */
+  const isActive = (path) => location.pathname === path;
+
+ 
+ /* ======================================================
+       UI
+     ====================================================== */
   return (
     <aside
       className="fixed left-0 top-0 w-[80px] h-screen bg-white border-r border-gray-100 
                  flex flex-col items-center py-6 z-20 transition-all duration-150 ease-in-out"
     >
-      {/* 🔹 Logo utama */}
+
+
+      {/* LOGO */}
       <div className="w-[50px] h-[50px] flex items-center justify-center mb-5">
         <img
           src={iconOnly}
@@ -22,7 +47,8 @@ export default function LayoutSidebar() {
         />
       </div>
 
-      {/* 🔹 Tombol collapse */}
+
+      {/* COLLAPSE BUTTON (FUTURE FEATURE) */}
       <div className="flex items-center justify-center my-[20px]">
         <button
           className="w-[25px] h-[25px] flex items-center justify-center 
@@ -37,39 +63,36 @@ export default function LayoutSidebar() {
         </button>
       </div>
 
-      {/* 🔹 Tombol Apps */}
-<button
-  className="w-[80px] h-[40px] my-[5px] flex items-center justify-center
-             text-[#C4C4C4] bg-transparent border-0 outline-none appearance-none
-             hover:text-[#EB5B00] hover:border-r-[3px] hover:border-[#EB5B00]
-             focus:text-[#EB5B00] focus:scale-95
-             active:text-[#EB5B00] active:scale-95
-             transition-all duration-150 ease-out"
-  style={{ background: "none", boxShadow: "none" }}
->
-  <i className="uil uil-apps text-[24px]" />
-</button>
+
+      {/* VERTICAL MENU */}
+      <div className="w-[80px] h-[300px] mt-[20px] flex flex-col justify-between items-center">
+        {menuItems.map((item, i) => {
+          const active = isActive(item.path);
+          return (
+            <button
+              key={i}
+              onClick={() => navigate(item.path)}
+              className={`relative w-[80px] h-[40px] flex items-center justify-center
+                          border-0 outline-none appearance-none bg-transparent
+                          transition-all duration-150 ease-out
+                          ${
+                            active
+                              ? "text-[#EB5B00]"
+                              : "text-[#C4C4C4] hover:text-[#EB5B00]"
+                          }`}
+              title={item.label}
+            >
+              <i className={`uil ${item.icon} text-[24px]`} />
 
 
-{/* 🔹 Menu Vertikal */}
-<div className="w-[80px] h-[220px] my-[20px] flex flex-col justify-between items-center">
-  {menuIcons.map((ic, i) => (
-    <button
-      key={i}
-      className="w-[80px] h-[40px] flex items-center justify-center
-                 text-[#C4C4C4] bg-transparent border-0 outline-none appearance-none
-                 hover:text-[#EB5B00] hover:border-r-[3px] hover:border-[#EB5B00]
-                 focus:text-[#EB5B00] focus:scale-95
-                 active:text-[#EB5B00] active:scale-95
-                 transition-all duration-150 ease-out"
-      style={{ background: "none", boxShadow: "none" }}
-    >
-      <i className={`uil ${ic} text-[24px]`} />
-    </button>
-  ))}
-</div>
-
-
+              {/* ACTIVE INDICATOR */}
+              {active && (
+                <span className="absolute right-0 top-0 w-[3px] h-full bg-[#EB5B00] rounded-l-sm" />
+              )}
+            </button>
+          );
+        })}
+      </div>
     </aside>
   );
 }

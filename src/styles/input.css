@@ -1,61 +1,22 @@
-/* 🌿 Tailwind Base (gunakan hanya jika kamu ingin extend style dari index.css) */
+/* input.css — temporarily disabled for E-Meeting project
+   ------------------------------------------------------
+   ⚠️ All previous form overrides moved to index.css & inline JSX.
+   This file is intentionally left minimal to prevent style conflicts.
+*/
+
 @import "tailwindcss";
 
-/* ===============================
-   🌐 GLOBAL BASE SETTING (STABLE)
-   Tailwind v4 — Extended Style Layer
-   =============================== */
+/* Base reset only (optional minimal scroll fix) */
 @layer base {
-  /* 🧱 Base structure fix */
   html,
   body,
   #root {
     @apply m-0 p-0;
   }
-
-  /* ✅ Scrollbar minimalis (tidak menimpa bg layout dari index.css) */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 rounded-full;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-400;
-  }
 }
 
-/* ===============================
-   ✨ FORM & INPUT CUSTOMIZATION
-   =============================== */
-@layer components {
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  select,
-  textarea {
-    @apply border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900
-           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-           transition duration-150 ease-in-out;
-  }
+/* No component overrides active */
+@layer components {}
 
-  button {
-    @apply transition duration-150 ease-in-out active:scale-95;
-  }
-}
-
-/* ===============================
-   ⚙️ GLOBAL HELPERS (OPTIONAL)
-   =============================== */
-@layer utilities {
-  .scroll-smooth {
-    scroll-behavior: smooth;
-  }
-
-  .no-select {
-    user-select: none;
-  }
-}
+/* No custom utilities active */
+@layer utilities {}

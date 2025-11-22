@@ -1,5 +1,5 @@
 // ======================================================
-// 📁 generateTree.js — Minimal Clean Project Tree (PowerShell Safe)
+// generateTree.js — Minimal Clean Project Tree (PowerShell Safe)
 // ======================================================
 
 import { exec } from "child_process";
@@ -7,7 +7,7 @@ import { writeFileSync, readdirSync, statSync } from "fs";
 import path from "path";
 
 // ======================================================
-// 🚫 Folder & File yang diabaikan
+// Folder & File yang diabaikan
 // ======================================================
 const ignoreList = [
   "node_modules",
@@ -31,7 +31,7 @@ const ignoreList = [
 ];
 
 // ======================================================
-// 🧠 Fungsi untuk generate tree manual (tanpa 'tree' command)
+// Fungsi untuk generate tree manual (tanpa 'tree' command)
 // ======================================================
 function generateTree(dir, prefix = "", level = 0, maxDepth = 2) {
   if (level > maxDepth) return "";

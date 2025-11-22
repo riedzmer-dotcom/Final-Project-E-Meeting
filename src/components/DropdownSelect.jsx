@@ -7,10 +7,17 @@ export default function DropdownSelect({
   onChange,
   disabled = false,
 }) {
+
+/* ======================================================
+       STATES & REFS
+     ====================================================== */
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // ✅ Tutup dropdown saat klik di luar
+
+/* ======================================================
+       CLOSE DROPDOWN ON OUTSIDE CLICK
+     ====================================================== */
   useEffect(() => {
     function handleClickOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -21,9 +28,24 @@ export default function DropdownSelect({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+
+ /* ======================================================
+       DISPLAY LABEL
+     ====================================================== */
+  const displayLabel =
+    typeof value === "object" && value !== null
+      ? value.label
+      : options.find((opt) => opt.value === value)?.label || placeholder;
+
+
+/* ======================================================
+       UI
+     ====================================================== */
   return (
     <div ref={dropdownRef} className={`relative w-full ${disabled ? "opacity-60" : ""}`}>
-      {/* Button */}
+      
+      
+      {/* BUTTON */}
       <button
         type="button"
         disabled={disabled}
@@ -36,8 +58,8 @@ export default function DropdownSelect({
                     transition-all duration-200
                     ${disabled ? "cursor-not-allowed bg-gray-100" : ""}`}
       >
-        <span className={value ? "text-[#2B2B2B]" : "text-gray-400"}>
-          {value || placeholder}
+        <span className={displayLabel ? "text-[#2B2B2B]" : "text-gray-400"}>
+          {displayLabel || placeholder}
         </span>
 
         <i
@@ -47,7 +69,10 @@ export default function DropdownSelect({
         />
       </button>
 
-      {/* Dropdown Menu */}
+      
+      
+      
+      {/* DROPDOWN MENU */}
       {open && !disabled && (
         <ul
           className="absolute w-full mt-[8px] bg-white border border-gray-200 
@@ -55,24 +80,31 @@ export default function DropdownSelect({
                      z-50 max-h-[240px] overflow-y-auto"
         >
           {options.length > 0 ? (
-            options.map((item, i) => (
-              <li
-                key={i}
-                onClick={() => {
-                  setOpen(false);
-                  onChange?.(item); // ✅ kirim ke parent!
-                }}
-                className={`px-[14px] py-[10px] text-[14px] cursor-pointer
-                            transition-all duration-150
-                            ${
-                              value === item
-                                ? "bg-[#FFF3E9] text-[#EB5B00]"
-                                : "text-[#5E5E5E] hover:bg-[#FFF3E9] hover:text-[#EB5B00]"
-                            }`}
-              >
-                {item}
-              </li>
-            ))
+            options.map((item, i) => {
+              const isSelected =
+                (typeof value === "object" && value?.value === item.value) ||
+                value === item.value ||
+                value === item.label;
+
+              return (
+                <li
+                  key={i}
+                  onClick={() => {
+                    setOpen(false);
+                    onChange?.(item); 
+                  }}
+                  className={`px-[14px] py-[10px] text-[14px] cursor-pointer
+                              transition-all duration-150
+                              ${
+                                isSelected
+                                  ? "bg-[#FFF3E9] text-[#EB5B00]"
+                                  : "text-[#5E5E5E] hover:bg-[#FFF3E9] hover:text-[#EB5B00]"
+                              }`}
+                >
+                  {item.label || item.value}
+                </li>
+              );
+            })
           ) : (
             <li className="px-[14px] py-[10px] text-[13px] text-gray-400 italic">
               No options available

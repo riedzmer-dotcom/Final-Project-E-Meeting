@@ -3,18 +3,19 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function PickerReservationDate({ value, onChange }) {
-  const [selectedDate, setSelectedDate] = useState(value ? new Date(value) : null);
-  const [isFocused, setIsFocused] = useState(false);
-  const dateInputRef = useRef(null);
 
-  // 🧠 Sinkronisasi jika value dari parent berubah
-  useEffect(() => {
-    if (value) {
-      setSelectedDate(new Date(value));
-    }
-  }, [value]);
+/* ======================================================
+       UTILS: PARSE & FORMAT DATE
+     ====================================================== */
 
-  // 🗓️ Format tanggal ke string "dd/MM/yyyy"
+  // Convert DD/MM/YYYY → Date object
+  const parseDate = (str) => {
+    if (!str) return null;
+    const [d, m, y] = str.split("/");
+    return new Date(`${y}-${m}-${d}`);
+  };
+
+  // Convert Date → DD/MM/YYYY
   const formatDate = (date) => {
     if (!date) return "";
     return date.toLocaleDateString("id-ID", {
@@ -24,15 +25,37 @@ export default function PickerReservationDate({ value, onChange }) {
     });
   };
 
+
+/* ======================================================
+       STATES & REFS
+     ====================================================== */
+  const [selectedDate, setSelectedDate] = useState(parseDate(value));
+  const [isFocused, setIsFocused] = useState(false);
+  const dateInputRef = useRef(null);
+
+
+ /* ======================================================
+       SYNC VALUE DARI PARENT
+     ====================================================== */
+  useEffect(() => {
+    setSelectedDate(parseDate(value));
+  }, [value]);
+
+  
+/* ======================================================
+       UI
+     ====================================================== */
   return (
     <section className="relative w-full">
+      
+      {/* DATE PICKER INPUT */}
       <DatePicker
         wrapperClassName="w-full"
         ref={dateInputRef}
         selected={selectedDate}
         onChange={(date) => {
           setSelectedDate(date);
-          onChange?.(formatDate(date)); // ✅ Kirim ke parent!
+          onChange?.(formatDate(date)); // kirim string ke parent
         }}
         placeholderText="Select date"
         dateFormat="dd/MM/yyyy"
@@ -46,7 +69,7 @@ export default function PickerReservationDate({ value, onChange }) {
         onBlur={() => setIsFocused(false)}
       />
 
-      {/* Ikon kalender */}
+      {/* CALENDAR ICON */}
       <i
         onClick={() => dateInputRef.current.setFocus()}
         className={`uil uil-calendar-alt absolute right-[12px] top-1/2 

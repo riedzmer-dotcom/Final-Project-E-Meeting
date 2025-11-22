@@ -1,4 +1,8 @@
 export default function ReportTableHeader() {
+
+/* ======================================================
+       UI — TABLE HEADER
+     ====================================================== */
   return (
     <thead
       className="bg-gray-200 text-[#5E5E5E]"
@@ -11,6 +15,8 @@ export default function ReportTableHeader() {
       }}
     >
       <tr className="h-[54px]">
+
+        {/* DATE REV, ROOM NAME, ROOM TYPE, STATUS, ACTION */}
         <th className="px-[40px] text-left align-middle">Date Reservation</th>
         <th className="px-[40px] text-left align-middle">Room Name</th>
         <th className="px-[40px] text-left align-middle">Room Type</th>

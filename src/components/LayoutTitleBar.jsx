@@ -1,15 +1,24 @@
 export default function LayoutTitleBar({ title = "Dashboard" }) {
+
+  /* ======================================================
+       UI
+     ====================================================== */
   return (
     <div className="flex items-center justify-between w-full">
-      {/* 🔹 Title dinamis */}
-      <h1 className="text-[28px] font-bold text-[#0F172A]">{title}</h1>
 
-      {/* 🔹 User account */}
+      {/* PAGE TITLE */}
+      <h1 className="text-[28px] font-bold text-[#0F172A]">
+        {title}
+      </h1>
+
+      {/* USER ACCOUNT (STATIC DISPLAY) */}
       <div className="flex items-center gap-3">
         <div className="text-right">
           <p className="font-medium text-[#0F172A]">Angelina</p>
           <p className="text-sm text-gray-500">Admin</p>
         </div>
+
+        {/* USER AVATAR */}
         <img
           src="/src/assets/images/avatar.png"
           alt="User Avatar"

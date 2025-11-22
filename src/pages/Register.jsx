@@ -1,10 +1,75 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import mainLogo from "/src/assets/images/main-logo.png";
 import bgImage from "/src/assets/images/BgeMeeting.webp";
+import { registerUser } from "../services/api";
+
+
+/* ======================================================
+     REGISTER PAGE COMPONENT
+  ====================================================== */
 
 export default function Register() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirm_password: "",
+  });
+
+  /* ======================================================
+     HANDLERS — INPUT & SUBMIT
+  ====================================================== */
+
+  // Update form input
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Submit form register
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!formData.username || !formData.email || !formData.password || !formData.confirm_password) {
+    alert("⚠️ Please fill in all fields!");
+    return;
+  }
+
+  if (formData.password !== formData.confirm_password) {
+    alert("⚠️ Passwords do not match!");
+    return;
+  }
+
+  try {
+    setIsSubmitting(true);
+
+    const payload = {
+      username: formData.username,
+      email: formData.email,
+      password: formData.password,
+    };
+
+    const res = await registerUser(payload);
+    alert(res.message || "✅ Account created successfully!");
+    navigate("/login");
+
+  } catch (err) {
+    console.error("❌ Register error:", err);
+    alert(err.response?.data?.message || "Failed to register account.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+
+/* ======================================================
+     UI
+  ====================================================== */
 
   return (
     <div
@@ -16,7 +81,8 @@ export default function Register() {
     >
       {/* CARD */}
       <div
-        className="bg-white w-[90%] sm:w-[420px] md:w-[500px] lg:w-[560px] ml-[60px] px-[110px] pt-[50px] pb-[20px]
+        className="bg-white w-[90%] sm:w-[420px] md:w-[500px] lg:w-[560px] ml-[60px] 
+                   px-[110px] pt-[50px] pb-[20px]
                    rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.2)]
                    flex flex-col items-center"
       >
@@ -40,14 +106,17 @@ export default function Register() {
         </div>
 
         {/* FORM */}
-        <form className="flex flex-col w-full gap-[20px]">
+        <form className="flex flex-col w-full gap-[20px]" onSubmit={handleSubmit}>
 
           {/* Username */}
           <div className="flex flex-col gap-[4px]">
             <label className="text-[#2B2B2B] text-[16px]">Username</label>
             <input
               type="text"
+              value={formData.username}
+              onChange={(e) => handleChange("username", e.target.value)}
               placeholder="Username"
+              autoComplete="username"
               className="w-full h-[48px] rounded-[10px] border border-gray-300 px-[14px]
                          text-[14px] text-[#5E5E5E]
                          focus:outline-none focus:ring-1 focus:ring-[#EB5B00] focus:border-[#EB5B00]
@@ -60,7 +129,10 @@ export default function Register() {
             <label className="text-[#2B2B2B] text-[16px]">Email</label>
             <input
               type="email"
+              value={formData.email}
+              onChange={(e) => handleChange("email", e.target.value)}
               placeholder="Email"
+              autoComplete="email"
               className="w-full h-[48px] rounded-[10px] border border-gray-300 px-[14px]
                          text-[14px] text-[#5E5E5E]
                          focus:outline-none focus:ring-1 focus:ring-[#EB5B00] focus:border-[#EB5B00]
@@ -73,18 +145,23 @@ export default function Register() {
             <label className="text-[#2B2B2B] text-[16px]">Password</label>
             <input
               type={showPassword ? "text" : "password"}
+              value={formData.password}
+              onChange={(e) => handleChange("password", e.target.value)}
               placeholder="Password"
+              autoComplete="new-password"
               className="w-full h-[48px] rounded-[10px] border border-gray-300 px-[14px] pr-[42px]
                          text-[14px] text-[#5E5E5E]
-                         focus:outline-none focus:ring-1 focus:ring-[#EB5B00] focus:border-[#EB5B00]
-                         transition-all duration-200"
+                         focus:bg-white focus:ring-1 focus:ring-[#EB5B00] focus:border-[#EB5B00]
+                         focus:outline-none focus-visible:outline-none
+                         transition-all duration-200 ease-in-out"
             />
 
             {/* Toggle Password */}
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-[12px] top-[36px] text-gray-400 hover:text-[#EB5B00] transition-colors duration-200"
+              className="absolute right-[12px] top-[36px] text-gray-400 hover:text-[#EB5B00]
+                         transition-colors duration-150 focus:outline-none"
             >
               <i
                 className={`uil ${
@@ -99,18 +176,23 @@ export default function Register() {
             <label className="text-[#2B2B2B] text-[16px]">Confirm Password</label>
             <input
               type={showConfirm ? "text" : "password"}
+              value={formData.confirm_password}
+              onChange={(e) => handleChange("confirm_password", e.target.value)}
               placeholder="Confirm Password"
+              autoComplete="new-password"
               className="w-full h-[48px] rounded-[10px] border border-gray-300 px-[14px] pr-[42px]
                          text-[14px] text-[#5E5E5E]
-                         focus:outline-none focus:ring-1 focus:ring-[#EB5B00] focus:border-[#EB5B00]
-                         transition-all duration-200"
+                         focus:bg-white focus:ring-1 focus:ring-[#EB5B00] focus:border-[#EB5B00]
+                         focus:outline-none focus-visible:outline-none
+                         transition-all duration-200 ease-in-out"
             />
 
             {/* Toggle Confirm Password */}
             <button
               type="button"
               onClick={() => setShowConfirm(!showConfirm)}
-              className="absolute right-[12px] top-[36px] text-gray-400 hover:text-[#EB5B00] transition-colors duration-200"
+              className="absolute right-[12px] top-[36px] text-gray-400 hover:text-[#EB5B00]
+                         transition-colors duration-150 focus:outline-none"
             >
               <i
                 className={`uil ${
@@ -123,12 +205,14 @@ export default function Register() {
           {/* CREATE ACCOUNT BUTTON */}
           <button
             type="submit"
+            disabled={isSubmitting}
             className="mt-[25px] w-full h-[48px] rounded-[10px]
                        bg-[#EB5B00] hover:bg-[#d84f00] text-white font-medium
                        active:scale-95 transition-all duration-200
-                       focus:outline-none focus:ring-1 focus:ring-[#EB5B00]"
+                       focus:outline-none focus:ring-1 focus:ring-[#EB5B00]
+                       disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Create Account
+            {isSubmitting ? "Creating..." : "Create Account"}
           </button>
         </form>
 
@@ -146,8 +230,8 @@ export default function Register() {
         </p>
 
         {/* FOOTER */}
-        <div className="text-center text-[12px] text-gray-400 mt-[25px]">
-          © Ridwan Nurhamsyah — Final Project E-Meeting
+        <div className="text-center text-[10px] text-gray-400 mt-[25px]">
+          © Kelompok 2 Ridwan Nurhamsyah & Kamaludin — Final Project E-Meeting
         </div>
       </div>
     </div>

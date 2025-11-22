@@ -1,28 +1,38 @@
 import ReportTableHeader from "./ReportTableHeader";
 import ReportTableBody from "./ReportTableBody";
 
-export default function TableReport() {
+export default function ReportTable({ records, loading }) {
+
+/* ======================================================
+       UI
+     ====================================================== */
   return (
-    <div className="bg-white rounded-t-xl shadow-sm overflow-hidden">
-      {/* header table (statis) */}
+    <div className="bg-white rounded-t-[10px] shadow-sm overflow-hidden">
+
+      {/* TABLE HEADER (STATIC) */}
       <div className="w-full">
         <table className="table-fixed w-full text-left text-sm border-collapse">
-          {/* colgroup menentukan lebar kolom yang sama untuk header & body */}
+          
+          
+          {/* COLUMN WIDTH DEFINITIONS */}
           <colgroup>
-            <col style={{ width: "200px" }} /> {/* Date */}
-            <col style={{ width: "200px" }} /> {/* Room Name */}
-            <col style={{ width: "200px" }} /> {/* Room Type */}
-            <col style={{ width: "150px" }} /> {/* Status */}
-            <col style={{ width: "80px" }} />  {/* Action */}
+            <col style={{ width: "200px" }} /> 
+            <col style={{ width: "200px" }} /> 
+            <col style={{ width: "200px" }} /> 
+            <col style={{ width: "150px" }} /> 
+            <col style={{ width: "80px" }} />  
           </colgroup>
 
+          {/* HEADER COMPONENT */}
           <ReportTableHeader />
         </table>
       </div>
 
-      {/* body table (scrollable area) */}
-      <div className="max-h-[330px] overflow-y-auto">
+      {/* TABLE BODY (SCROLLABLE AREA) */}
+      <div className="max-h-[330px] overflow-y-auto focus:outline-none focus:ring-0 focus:border-none">
         <table className="table-fixed w-full text-left text-sm border-collapse">
+          
+          {/* COLUMN WIDTH (MATCHING ABOVE) */}
           <colgroup>
             <col style={{ width: "200px" }} />
             <col style={{ width: "200px" }} />
@@ -31,7 +41,8 @@ export default function TableReport() {
             <col style={{ width: "80px" }} />
           </colgroup>
 
-          <ReportTableBody />
+          {/* BODY COMPONENT */}
+          <ReportTableBody records={records} loading={loading} />
         </table>
       </div>
     </div>

@@ -1,10 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 
 export default function DropdownSelectSmall({ options = [], value, onChange }) {
+
+/* ======================================================
+       STATES & REFS
+     ====================================================== */
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Close saat klik di luar
+
+
+ /* ======================================================
+       CLOSE DROPDOWN ON OUTSIDE CLICK
+     ====================================================== */
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -15,8 +23,15 @@ export default function DropdownSelectSmall({ options = [], value, onChange }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+
+/* ======================================================
+       UI
+     ====================================================== */
   return (
     <div ref={dropdownRef} className="relative w-[70px]">
+
+
+    {/* BUTTON */}
       <button
         onClick={() => setOpen((prev) => !prev)}
         className="w-full h-[32px] rounded-[8px] border border-gray-300 bg-white
@@ -32,6 +47,8 @@ export default function DropdownSelectSmall({ options = [], value, onChange }) {
         />
       </button>
 
+
+      {/* DROPDOWN MENU */}
       {open && (
         <ul
           className="absolute bottom-[38px] w-full bg-white border border-gray-200 rounded-[8px]
