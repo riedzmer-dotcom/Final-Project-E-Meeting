@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 import LayoutSidebar from "../components/LayoutSidebar";
 import LayoutHeader from "../components/LayoutHeader";
@@ -10,63 +10,33 @@ import LayoutFooter from "../components/LayoutFooter";
 import { getRooms, getReservations } from "../services/api";
 
 /* ======================================================
-     STATE
-  ====================================================== */
+   HELPER — CALCULATE RESERVATION REVENUE
+====================================================== */
+function calculateReservationRevenue(reservation, roomsMap) {
+  const room = roomsMap[reservation.room_id];
+  if (!room) return 0;
 
-export default function Dashboard() {
-  const [stats, setStats] = useState({
-    totalMoney: 0,
-    totalReservations: 0,
-    totalVisitors: 0,
-    totalRooms: 0,
-  });
+  const pricePerHour = Number(room.price ?? 0);
 
-  const [roomPerformance, setRoomPerformance] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [sh, sm] = reservation.start_time.split(":").map(Number);
+  const [eh, em] = reservation.end_time.split(":").map(Number);
 
-  /* ======================================================
-     CONSTANTS — OPERATIONAL HOURS
-  ====================================================== */
+  const start = sh * 60 + sm;
+  const end = eh * 60 + em;
 
-  const OP_START = 6;  // 06:00
-  const OP_END = 23;   // 23:00
-  const OP_HOURS = OP_END - OP_START;  // 17 Jam
+  const dur = Math.max((end - start) / 60, 0);
 
+  return pricePerHour * dur;
+}
 
- /* ======================================================
-     CALCULATE RESERVATION REVENUE
-  ====================================================== */
-
-  function calculateReservationRevenue(reservation, roomsMap) {
-    const room = roomsMap[reservation.room_id];
-    if (!room) return 0;
-
-    const pricePerHour = Number(room.price ?? 0);
-
-    const [sh, sm] = reservation.start_time.split(":").map(Number);
-    const [eh, em] = reservation.end_time.split(":").map(Number);
-
-    const start = sh * 60 + sm;
-    const end = eh * 60 + em;
-
-    const dur = Math.max((end - start) / 60, 0); 
-
-    return pricePerHour * dur;
-  }
-
- /* ======================================================
-     GENERATE ROOM PERFORMANCE
-  ====================================================== */
-
+/* ======================================================
+   HELPER — GENERATE ROOM PERFORMANCE
+====================================================== */
 function generateRoomPerformance(rooms, reservations) {
   const roomsMap = {};
   rooms.forEach((r) => (roomsMap[r.id] = r));
 
-  // Jam operasional: 06:00 - 23:00  → 17 jam = 1020 menit
   const OP_MINUTES = 17 * 60;
-
-  // Struktur data:
-  // dailyUsage[room_id][date] = total used minutes per date
   const dailyUsage = {};
   const omzetMap = {};
 
@@ -89,50 +59,56 @@ function generateRoomPerformance(rooms, reservations) {
 
     const duration = Math.max(endMin - startMin, 0);
 
-    // durasi harian
     if (!dailyUsage[roomId][date]) dailyUsage[roomId][date] = 0;
     dailyUsage[roomId][date] += duration;
 
-    // Hitung omzet 
     omzetMap[roomId] += calculateReservationRevenue(res, roomsMap);
   });
 
-  // Hasil akhir
   return rooms.map((room) => {
     const usageDates = Object.values(dailyUsage[room.id]);
 
-    // Jika tidak ada booking → usage 0%
     if (usageDates.length === 0) {
       return {
         name: room.room_name,
-        omzet: Math.round(omzetMap[room.id]),
         usage: 0,
+        omzet: Math.round(omzetMap[room.id]),
       };
     }
 
-    // Hitung usage harian → lalu ambil rata-rata
-    const dailyPercentages = usageDates.map((minutes) => {
-      const percent = (minutes / OP_MINUTES) * 100;
-      return Math.min(percent, 100); // Tidak lebih dari 100%
-    });
+    const dailyPercentages = usageDates.map((m) =>
+      Math.min((m / OP_MINUTES) * 100, 100)
+    );
 
-    // AVERAGE USAGE
     const avgUsage =
       dailyPercentages.reduce((a, b) => a + b, 0) / dailyPercentages.length;
 
     return {
       name: room.room_name,
-      omzet: Math.round(omzetMap[room.id]),
       usage: Math.round(avgUsage),
+      omzet: Math.round(omzetMap[room.id]),
     };
   });
 }
 
+/* ======================================================
+   COMPONENT — DASHBOARD
+====================================================== */
+export default function Dashboard() {
+  const [stats, setStats] = useState({
+    totalMoney: 0,
+    totalReservations: 0,
+    totalVisitors: 0,
+    totalRooms: 0,
+  });
+
+  const [roomPerformance, setRoomPerformance] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   /* ======================================================
      FETCH DATA
   ====================================================== */
-
-  const loadDashboard = async () => {
+  const loadDashboard = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -167,24 +143,26 @@ function generateRoomPerformance(rooms, reservations) {
       /* PERFORMANCE PER ROOM */
       const generated = generateRoomPerformance(rooms, reservations);
 
-      const collator = new Intl.Collator("en", { numeric: true, sensitivity: "base" });
+      const collator = new Intl.Collator("en", {
+        numeric: true,
+        sensitivity: "base",
+      });
 
       const sorted = [...generated].sort((a, b) =>
         collator.compare(a.name, b.name)
       );
 
       setRoomPerformance(sorted);
-
     } catch (error) {
       console.error("Dashboard Error:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadDashboard();
-  }, []);
+  }, [loadDashboard]);
 
 
   /* ======================================================

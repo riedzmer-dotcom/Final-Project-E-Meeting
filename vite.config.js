@@ -1,15 +1,16 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// ✅ Konfigurasi Vite standar dan stabil untuk React + Tailwind v4
+// Konfigurasi Vite for React + Tailwind v4
 export default defineConfig({
+  base: "/Final-Project-E-Meeting/", // Name Repo
   plugins: [react()],
   server: {
     fs: {
-      strict: true, // tetap biar path case-sensitive
+      strict: true, // path case-sensitive
     },
   },
   optimizeDeps: {
-    force: true, // tetap berguna untuk rebuild cache
+    force: true, // rebuild cache
   },
 });

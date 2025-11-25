@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProfile } from "../services/api";
 import frameImage from "../assets/images/frame-image.png";
 import CustomToast from "../components/CustomToast";
 import TopLoadingBar from "./TopLoadingBar";
 
-export default function LayoutHeader({ pageTitle = "Dashboard", loading  }) {
+export default function LayoutHeader({ pageTitle = "Dashboard", loading }) {
 
 /* ======================================================
        STATES
-     ====================================================== */
+======================================================= */
   const [user, setUser] = useState({
     username: "",
     role: "",
@@ -18,12 +18,11 @@ export default function LayoutHeader({ pageTitle = "Dashboard", loading  }) {
 
   const [toastMsg, setToastMsg] = useState("");
   const navigate = useNavigate();
-  const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-  
- /* ======================================================
+
+/* ======================================================
        LOGOUT HANDLER
-     ====================================================== */
+======================================================= */
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
@@ -34,15 +33,14 @@ export default function LayoutHeader({ pageTitle = "Dashboard", loading  }) {
     setTimeout(() => navigate("/Login"), 300);
   };
 
-  /* ======================================================
+/* ======================================================
        FETCH PROFILE (HEADER SYNC)
-     ====================================================== */
-  const loadProfile = async () => {
+======================================================= */
+  const loadProfile = useCallback(async () => {
     try {
       const res = await getProfile();
       const data = res?.data || {};
 
-      // Keep header photo in sync with stored photo
       if (data.photo_url) {
         localStorage.setItem("photo_url", data.photo_url);
       }
@@ -54,17 +52,17 @@ export default function LayoutHeader({ pageTitle = "Dashboard", loading  }) {
       });
     } catch (err) {
       console.error("❌ /profile error:", err);
-      if (err.response?.status === 401) {
+      if (err?.response?.status === 401) {
         localStorage.removeItem("token");
         navigate("/Login");
       }
     }
-  };
+  }, [navigate]); // include navigate
 
 
 /* ======================================================
        INITIAL LOAD + LISTEN FOR PROFILE UPDATE EVENT
-     ====================================================== */
+======================================================= */
   useEffect(() => {
     loadProfile();
 
@@ -73,18 +71,18 @@ export default function LayoutHeader({ pageTitle = "Dashboard", loading  }) {
     window.addEventListener("profile-updated", handler);
 
     return () => window.removeEventListener("profile-updated", handler);
-  }, []);
+  }, [loadProfile]); // now loadProfile included
 
 
-  /* ======================================================
+/* ======================================================
        PHOTO FALLBACK HANDLING
-     ====================================================== */
+======================================================= */
   const displayedPhoto =
     user.photo_url ||
     localStorage.getItem("photo_url") ||
     frameImage;
 
- 
+
  /* ======================================================
        UI
      ====================================================== */
